@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+message Command {
+  oneof request {
+    EmulatorInfoRequest emulatorInfo = 1;
+    EmulationStatusRequest emulationStatus = 2;
+    CoreMemoriesRequest coreMemories = 3;
+    CoreMemoryReadMultiRequest coreMemoryReadMulti = 4;
+    CoreMemoryWriteMultiRequest coreMemoryWriteMulti = 5;
+  }
+}
+
+message Response {
+  oneof response {
+    EmulatorInfoResponse emulatorInfo = 1;
+    EmulationStatusResponse emulationStatus = 2;
+    CoreMemoriesResponse coreMemories = 3;
+    CoreMemoryReadMultiResponse coreMemoryReadMulti = 4;
+    CoreMemoryWriteMultiResponse coreMemoryWriteMulti = 5;
+  }
+}
+
+message EmulatorInfoRequest {}
+message EmulatorInfoResponse {
+  string name = 1;
+  string version = 2;
+  string nwa_version = 3;
+  string id = 4;
+  repeated string commands = 5;
+  // TODO: user_defined...
+}
+
+message EmulationStatusRequest {}
+enum EmulationState {
+  NoGame = 0;
+  Stopped = 1;
+  Paused = 2;
+  Running = 3;
+}
+message EmulationStatusResponse {
+  EmulationState state = 1;
+  string game_id = 2;
+}
+
+enum MemoryAccess {
+  Read = 0;
+  Write = 1;
+  ReadWrite = 2;
+}
+message CoreMemory {
+  string name = 1;
+  MemoryAccess access = 2;
+  uint32 size = 3;
+  map<string, string> properties = 4;
+}
+message CoreMemoriesRequest {}
+message CoreMemoriesResponse {
+  repeated CoreMemory memories = 1;
+}
+
+message MemoryRegion {
+  uint32 offset = 1;
+  uint32 size = 2;
+}
+message MemoryRegionData {
+  uint32 offset = 1;
+  uint32 size = 2;
+  bytes data = 3;
+}
+message CoreMemoryReadRequest {
+  string name = 1;
+  repeated MemoryRegion regions = 2;
+}
+message CoreMemoryReadResponse {
+  string name = 1;
+  repeated MemoryRegionData regions = 2;
+}
+message CoreMemoryWriteMultiRequest {
+  repeated CoreMemoryWriteRequest writes = 1;
+}
+message CoreMemoryWriteMultiResponse {
+  repeated CoreMemoryWriteResponse writes = 1;
+}
+
+message CoreMemoryReadMultiRequest {
+  repeated CoreMemoryReadRequest reads = 1;
+}
+message CoreMemoryReadMultiResponse {
+  repeated CoreMemoryReadResponse reads = 1;
+}
+
+message CoreMemoryWriteRequest {
+  string name = 1;
+  repeated MemoryRegionData regions = 2;
+}
+message CoreMemoryWriteResponse {
+  string name = 1;
+  repeated MemoryRegion regions = 2;
+}
